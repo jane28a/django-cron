@@ -28,6 +28,10 @@ from datetime import datetime
 from datetime import timedelta
 import sys
 import socket
+try:
+    from django.utils import timezone
+except ImportError:
+    timezone = None
 
 try:
     from django.db import ProgrammingError
@@ -53,6 +57,16 @@ MONTH = int(WEEK * 4.333)  # well sorta
 polling_frequency = getattr(settings, "CRON_POLLING_FREQUENCY", 300)
 
 cron_pid_file = cron_settings.PID_FILE
+
+
+def get_now():
+    if timezone and settings.USE_TZ:
+        now = timezone.now()
+    else:
+        now = datetime.now()
+    # Discard the seconds to prevent drift. Thanks to Josh Cartmell
+    now = datetime(now.year, now.month, now.day, now.hour, now.minute)
+    return now
 
 
 class Job(object):
@@ -195,9 +209,7 @@ class CronScheduler(object):
 
             for job in jobs:
 
-                # Discard the seconds to prevent drift. Thanks to Josh Cartmell
-                now = datetime.now()
-                now = datetime(now.year, now.month, now.day, now.hour, now.minute)
+                now = get_now()
                 if job.last_run:
                     last_run = datetime(job.last_run.year, job.last_run.month, job.last_run.day, job.last_run.hour, job.last_run.minute)
                 else:
