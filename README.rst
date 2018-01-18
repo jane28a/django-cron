@@ -1,16 +1,20 @@
 How to install django-cron
 ==========================
 
-1. Put 'django_cron' into your python path
-2. Add 'django_cron' to INSTALLED_APPS in your settings.py file
-3. Add the following code to the beginning of your urls.py file (just after the imports)::
+1. Put ``django_cron`` into your python path
+2. Add ``django_cron`` to ``INSTALLED_APPS`` in your ``settings.py`` file
+3. Add the following code to the beginning of your ``urls.py`` file (just after the imports):
 
-    import django_cron
-    django_cron.autodiscover()
+   .. code-block:: python
 
-4. Create a file called 'cron.py' inside each installed app that you want to add a recurring job to. The app must be installed via the INSTALLED_APPS in your settings.py or the autodiscover will not find it.
+	    import django_cron
+	    django_cron.autodiscover()
 
-Example cron.py::
+4. Create a file called ``cron.py`` inside each installed app that you want to add a recurring job to. The app must be installed via the ``INSTALLED_APPS`` in your ``settings.py`` or the autodiscover will not find it.
+
+Example `cron.py`:
+
+.. code-block:: python
 
   from django_cron import cronScheduler, Job, HOUR, DAY, WEEK, MONTH
 
@@ -48,14 +52,16 @@ Notes on andybak's fork
 Extra installation steps
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-1. Add an entry to your crontab. I use
-::
+1. Add an entry to your crontab. I use:
 
-  \*/1 \* \* \* \* /path/to/python /path/to/manage.py cronjobs >> $HOME/cron.log 2>>cron_error.log
+   .. code-block:: bash
 
-(If you do PYTHONPATH wrangling in your .bash_profile then this might need moving into your manage.py or a similar wrapper script)
+	  \*/1 \* \* \* \* /path/to/python /path/to/manage.py cronjobs >> $HOME/cron.log 2>>cron_error.log
 
-2. Add this to your root urls if you want to support restarting cron jobs via a GET
-::
+   (If you do ``PYTHONPATH`` wrangling in your ``.bash_profile`` then this might need moving into your manage.py or a similar wrapper script)
 
-  url(r'^admin/cron/', include('django_cron.admin_urls')),
+2. Add this to your root urls if you want to support restarting cron jobs via a GET:
+
+   .. code-block:: python
+
+	  url(r'^admin/cron/', include('django_cron.admin_urls')),
