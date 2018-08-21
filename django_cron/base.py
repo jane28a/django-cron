@@ -265,7 +265,7 @@ class CronScheduler(object):
                         unreliable_time = timedelta(minutes=getattr(inst, 'unreliable', 0))
                         if job.id:  # Job might have been deleted
                             # when the job is marked unreliable, we fail silently if it's within unreliable time.
-                            if since_last_run >= unreliable_time:
+                            if since_last_run <= unreliable_time:
                                 job.queued = False
                                 job.save()
                         if since_last_run >= unreliable_time:
