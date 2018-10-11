@@ -3,7 +3,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponseRedirect
 
 
-from models import Job
+from .models import Job
 
 
 @staff_member_required

@@ -26,6 +26,7 @@ import pickle
 from threading import Timer
 from datetime import datetime
 from datetime import timedelta
+import codecs
 import sys
 import socket
 try:
@@ -69,6 +70,18 @@ def get_now():
     return now
 
 
+def pickle_dumps_and_encode(obj):
+    pickled = pickle.dumps(obj)
+    pickled_and_encoded = codecs.encode(pickled, 'base64')
+    return pickled_and_encoded
+
+
+def pickle_loads_and_decode(pickled_and_encoded):
+    decoded = codecs.decode(pickled_and_encoded, 'base64')
+    decoded_and_unpicked = pickle.loads(decoded)
+    return decoded_and_unpicked
+
+
 class Job(object):
     
     run_every = DAY
@@ -93,7 +106,7 @@ class CronScheduler(object):
         """
         
         # Move import here to silence Django 1.8 warnings about importing models early
-        import models
+        from . import models
         
         job_instance = job_class()
         
@@ -103,9 +116,9 @@ class CronScheduler(object):
         try:
             job, created = models.Job.objects.get_or_create(name=str(job_instance.__class__))
             if created:
-                job.instance = pickle.dumps(job_instance)
-            job.args = pickle.dumps(args)
-            job.kwargs = pickle.dumps(kwargs)
+                job.instance = pickle_dumps_and_encode(job_instance)
+            job.args = pickle_dumps_and_encode(args)
+            job.kwargs = pickle_dumps_and_encode(kwargs)
             job.run_frequency = job_instance.run_every
             job.save()
         except ProgrammingError as e:
@@ -119,7 +132,7 @@ class CronScheduler(object):
     def unregister(self, job_class, *args, **kwargs):
         
         # Move import here to silence Django 1.8 warnings about importing models early
-        import models
+        from . import models
 
         job_instance = job_class()
         if not isinstance(job_instance, Job):
@@ -136,7 +149,7 @@ class CronScheduler(object):
         """
         
         # Move import here to silence Django 1.8 warnings about importing models early
-        import models
+        from . import models
         
         if not registering:
             status, created = models.Cron.objects.get_or_create(pk=1)
@@ -168,9 +181,9 @@ class CronScheduler(object):
                     else:
                         pid = int(pid_content)
                         if os.path.exists('/proc/%s' % pid):
-                            print('Verified! Process with pid %s is running.' % pid)
+                            print(('Verified! Process with pid %s is running.' % pid))
                         else:
-                            print('Oops! process with pid %s is not running.' % pid)
+                            print(('Oops! process with pid %s is not running.' % pid))
                             print('Fixing status in db. ')
                             status.executing = False
                             status.save()
@@ -220,9 +233,9 @@ class CronScheduler(object):
                 if since_last_run >= timedelta(minutes=job.run_frequency):
                     try:
                         try:
-                            inst = pickle.loads(str(job.instance))
-                            args = pickle.loads(str(job.args))
-                            kwargs = pickle.loads(str(job.kwargs))
+                            inst = pickle_loads_and_decode(str(job.instance))
+                            args = pickle_loads_and_decode(str(job.args))
+                            kwargs = pickle_loads_and_decode(str(job.kwargs))
                         except AttributeError as e:
                             if e.message.startswith(''''module' object has no attribute'''):
                                 job.delete() # The job had been deleted in code
