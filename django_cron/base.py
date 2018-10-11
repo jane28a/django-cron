@@ -22,7 +22,7 @@ THE SOFTWARE.
 """
 import logging
 import os
-import cPickle
+import pickle
 from threading import Timer
 from datetime import datetime
 from datetime import timedelta
@@ -41,8 +41,8 @@ except ImportError:
 from django.template.loader import render_to_string
 from django.conf import settings
 from django.core.mail import mail_admins
-from signals import cron_done
-import cron_settings
+from .signals import cron_done
+from . import cron_settings
 
 
 HOUR = 60
@@ -103,9 +103,9 @@ class CronScheduler(object):
         try:
             job, created = models.Job.objects.get_or_create(name=str(job_instance.__class__))
             if created:
-                job.instance = cPickle.dumps(job_instance)
-            job.args = cPickle.dumps(args)
-            job.kwargs = cPickle.dumps(kwargs)
+                job.instance = pickle.dumps(job_instance)
+            job.args = pickle.dumps(args)
+            job.kwargs = pickle.dumps(kwargs)
             job.run_frequency = job_instance.run_every
             job.save()
         except ProgrammingError as e:
@@ -156,7 +156,7 @@ class CronScheduler(object):
             #         multi-threaded servers)
 
             if status.executing:
-                print "Already executing"
+                print("Already executing")
                 ###PID code
                 ###check if django_cron is stuck
                 if cron_pid_file:
@@ -168,10 +168,10 @@ class CronScheduler(object):
                     else:
                         pid = int(pid_content)
                         if os.path.exists('/proc/%s' % pid):
-                            print 'Verified! Process with pid %s is running.' % pid
+                            print('Verified! Process with pid %s is running.' % pid)
                         else:
-                            print 'Oops! process with pid %s is not running.' % pid
-                            print 'Fixing status in db. '
+                            print('Oops! process with pid %s is not running.' % pid)
+                            print('Fixing status in db. ')
                             status.executing = False
                             status.save()
                             subject = 'Fixed cron job for %s' % settings.SITE_NAME
@@ -220,14 +220,14 @@ class CronScheduler(object):
                 if since_last_run >= timedelta(minutes=job.run_frequency):
                     try:
                         try:
-                            inst = cPickle.loads(str(job.instance))
-                            args = cPickle.loads(str(job.args))
-                            kwargs = cPickle.loads(str(job.kwargs))
-                        except AttributeError, e:
+                            inst = pickle.loads(str(job.instance))
+                            args = pickle.loads(str(job.args))
+                            kwargs = pickle.loads(str(job.kwargs))
+                        except AttributeError as e:
                             if e.message.startswith(''''module' object has no attribute'''):
                                 job.delete() # The job had been deleted in code
                             raise
-                        except ImportError, e:
+                        except ImportError as e:
                             if e.message == 'No module named cron':
                                 job.delete() # The whole cron.py file was deleted
                             raise
@@ -258,7 +258,7 @@ class CronScheduler(object):
                         else:
                             run_job()
 
-                    except Exception, err:
+                    except Exception as err:
                         # If the job throws an error, just remove it from
                         # the queue. That way we can find/fix the error and
                         # requeue the job manually
@@ -275,7 +275,7 @@ class CronScheduler(object):
                             if not getattr(settings, 'LOCAL_DEV', False):
                                 self.mail_exception(job.name, inst.__module__, err, stack)
                             else:
-                                print stack
+                                print(stack)
             status.executing = False
             status.save()
 

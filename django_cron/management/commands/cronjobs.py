@@ -16,7 +16,7 @@ import django_cron
 # Exit when the command last longer than CRON_TIMEOUT, if it's set
 if getattr(settings, 'CRON_TIMEOUT', False):
     def timeout_check(signum, stack):
-        print 'Timeout, exiting!'
+        print('Timeout, exiting!')
         sys.exit()
     
     signal.signal(signal.SIGALRM, timeout_check)
@@ -28,4 +28,4 @@ class Command(NoArgsCommand):
 
     def handle_noargs(self, **options):
         django_cron.autodiscover(start_timer=False, registering=False)
-        print "%s: Cronjobs for %s finished" % (datetime.now(), settings.SITE_NAME)
+        print("%s: Cronjobs for %s finished" % (datetime.now(), settings.SITE_NAME))

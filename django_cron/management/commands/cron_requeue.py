@@ -12,9 +12,9 @@ class Command(NoArgsCommand):
     help = "Set all jobs to be queued again."
 
     def handle_noargs(self, **options):
-        print 'Django Cron requeueing all jobs.'
+        print('Django Cron requeueing all jobs.')
         for job in Job.objects.all():
             job.queued = True
             job.save()
-            print "Requeued ", job
-        print 'Done'
+            print("Requeued ", job)
+        print('Done')
