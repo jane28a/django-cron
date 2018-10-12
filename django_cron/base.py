@@ -282,6 +282,9 @@ class CronScheduler(object):
                                 job.queued = False
                                 job.save()
                         if since_last_run >= unreliable_time:
+                            # besides sending error emails, mark queued=False
+                            job.queued = False
+                            job.save()
                             import traceback
                             exc_info = sys.exc_info()
                             stack = ''.join(traceback.format_tb(exc_info[2]))
