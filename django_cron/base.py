@@ -228,7 +228,7 @@ class CronScheduler(object):
                                 job.delete() # The job had been deleted in code
                             raise
                         except ImportError, e:
-                            if e.message == 'No module named cron':
+                            if 'No module named cron' in e.message:
                                 job.delete() # The whole cron.py file was deleted
                             raise
 
