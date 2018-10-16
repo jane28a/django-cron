@@ -276,7 +276,7 @@ class CronScheduler(object):
                             exc_info = sys.exc_info()
                             stack = ''.join(traceback.format_tb(exc_info[2]))
                             if not getattr(settings, 'LOCAL_DEV', False):
-                                self.mail_exception(job.name, inst.__module__, err, stack)
+                                self.mail_exception(job.name, inst and inst.__module__, err, stack)
                             else:
                                 print stack
             status.executing = False
