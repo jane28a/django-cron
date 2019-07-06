@@ -77,6 +77,7 @@ def pickle_dumps_and_encode(obj):
 
 
 def pickle_loads_and_decode(pickled_and_encoded):
+    pickled_and_encoded = bytes(pickled_and_encoded)
     decoded = codecs.decode(pickled_and_encoded, 'base64')
     decoded_and_unpicked = pickle.loads(decoded)
     return decoded_and_unpicked
