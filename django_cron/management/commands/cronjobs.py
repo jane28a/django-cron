@@ -9,7 +9,7 @@ import signal
 from datetime import datetime
 
 from django.conf import settings
-from django.core.management.base import NoArgsCommand
+from django.core.management.base import BaseCommand
 import django_cron
 
 
@@ -23,9 +23,9 @@ if getattr(settings, 'CRON_TIMEOUT', False):
     signal.alarm(settings.CRON_TIMEOUT)
 
 
-class Command(NoArgsCommand):
+class Command(BaseCommand):
     help = "run the cron services (intended to be executed from a cron job)"
 
-    def handle_noargs(self, **options):
+    def handle(self, **options):
         django_cron.autodiscover(start_timer=False, registering=False)
         print("%s: Cronjobs for %s finished" % (datetime.now(), settings.SITE_NAME))
