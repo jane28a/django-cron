@@ -77,10 +77,12 @@ def pickle_dumps_and_encode(obj):
 
 
 def pickle_loads_and_decode(pickled_and_encoded):
+    if pickled_and_encoded.startswith("b'") and pickled_and_encoded.endswith("n'"):
+        pickled_and_encoded = pickled_and_encoded[2:-2]
     pickled_and_encoded = bytes(pickled_and_encoded, 'utf8')
     decoded = codecs.decode(pickled_and_encoded, 'base64')
-    decoded_and_unpicked = pickle.loads(decoded)
-    return decoded_and_unpicked
+    decoded_and_loaded = pickle.loads(decoded)
+    return decoded_and_loaded
 
 
 class Job(object):
