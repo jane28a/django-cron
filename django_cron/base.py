@@ -69,22 +69,6 @@ def get_now():
     now = datetime(now.year, now.month, now.day, now.hour, now.minute)
     return now
 
-
-def pickle_dumps_and_encode(obj):
-    pickled = pickle.dumps(obj)
-    pickled_and_encoded = codecs.encode(pickled, 'base64')
-    return pickled_and_encoded
-
-
-def pickle_loads_and_decode(pickled_and_encoded):
-    if pickled_and_encoded.startswith("b'") and pickled_and_encoded.endswith("n'"):
-        pickled_and_encoded = pickled_and_encoded[2:-2]
-    pickled_and_encoded = bytes(pickled_and_encoded, 'utf8')
-    decoded = codecs.decode(pickled_and_encoded, 'base64')
-    decoded_and_loaded = pickle.loads(decoded)
-    return decoded_and_loaded
-
-
 class Job(object):
     
     run_every = DAY
@@ -119,9 +103,9 @@ class CronScheduler(object):
         try:
             job, created = models.Job.objects.get_or_create(name=str(job_instance.__class__))
             if created:
-                job.instance = pickle_dumps_and_encode(job_instance)
-            job.args = pickle_dumps_and_encode(args)
-            job.kwargs = pickle_dumps_and_encode(kwargs)
+                job.instance = pickle.dumps(job_instance)
+            job.args = pickle.dumps(args)
+            job.kwargs = pickle.dumps(kwargs)
             job.run_frequency = job_instance.run_every
             job.save()
         except ProgrammingError as e:
@@ -236,9 +220,9 @@ class CronScheduler(object):
                 if since_last_run >= timedelta(minutes=job.run_frequency):
                     try:
                         try:
-                            inst = pickle_loads_and_decode(str(job.instance))
-                            args = pickle_loads_and_decode(str(job.args))
-                            kwargs = pickle_loads_and_decode(str(job.kwargs))
+                            inst = picke.loads(job.instance)
+                            args = pickle.loads(job.args)
+                            kwargs = pickle.loads(job.kwargs)
                         except AttributeError as e:
                             if e.message.startswith(''''module' object has no attribute'''):
                                 job.delete() # The job had been deleted in code

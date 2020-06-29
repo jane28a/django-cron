@@ -38,9 +38,9 @@ class Job(models.Model):
     run_frequency = models.PositiveIntegerField(default=1440)
     last_run = models.DateTimeField(default=None, null=True)
     
-    instance = models.TextField()
-    args = models.TextField()
-    kwargs = models.TextField()
+    instance = models.BinaryField()
+    args = models.BinaryField()
+    kwargs = models.BinaryField()
     queued = models.BooleanField(default=True)
 
     def __unicode__(self):
