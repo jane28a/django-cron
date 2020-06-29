@@ -220,7 +220,7 @@ class CronScheduler(object):
                 if since_last_run >= timedelta(minutes=job.run_frequency):
                     try:
                         try:
-                            inst = picke.loads(job.instance)
+                            inst = pickle.loads(job.instance)
                             args = pickle.loads(job.args)
                             kwargs = pickle.loads(job.kwargs)
                         except AttributeError as e:
